@@ -1,6 +1,9 @@
 /****************************
 Your variables
 ****************************/
+let original,
+    copy;
+
 let trainTutorial;
 
 /****************************
@@ -9,6 +12,7 @@ Core funtions
 
 function preload() {
     trainTutorial = loadImage("../train/pixelsTrain.png");
+    original = trainTutorial;
 }
 
 function setup() {
