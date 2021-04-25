@@ -48,7 +48,6 @@ function keyPressed() {
             contrastRate-=0.2;
         }
         renderContrast();
-        console.log("left");
         originalChange = true;
         
     }else if (keyCode === RIGHT_ARROW) {
@@ -56,7 +55,6 @@ function keyPressed() {
             contrastRate+=0.2;
         }
         renderContrast();
-        console.log("right");
         originalChange = true;
         
     }else if (keyCode === UP_ARROW) {
