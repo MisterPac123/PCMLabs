@@ -82,18 +82,27 @@ function keyPressed() {
     }else if (key == 'n') {
         negativeImage();
         negativeEfect = (negativeEfect) ? false : true;
+        originalChange = false;
+
 		
     }else if (key == 't') {
         onlyGlobalThresholding();
         globalThresholding = (globalThresholding) ? false : true;
+        originalChange = false;
+
 
     }else if (key == 'a') {
-        if(globalThresholding)
+        if(globalThresholding){
             threshold = threshold - 1;
+            onlyGlobalThresholding();
+        }
+
 
     }else if (key == 's') {
-        if(globalThresholding)
+        if(globalThresholding){
             threshold = threshold + 1;
+            onlyGlobalThresholding();
+        }
     }  
 }
 
@@ -105,6 +114,8 @@ function resetImage(){
     originalChange = false;
     brightIncrement=0;
     contrastRate=1;
+    globalThresholding = false;
+    threshold=150;
 }
 
 function renderBright() {
