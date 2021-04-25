@@ -8,8 +8,8 @@ let trainTutorial;
 
 let contrastRate = 1;
 let brightIncrement = 0;
-let brightChange=false;
-let contrastChange=false;
+let originalChange = false;
+let negativeEfect = false;
 
 /****************************
 Core funtions
@@ -30,11 +30,10 @@ function setup() {
 }
 
 function draw() {
-    if(contrastChange){
+    if(originalChange){
         resizeCanvas(copy.width, copy.height);
         image(copy, 0, 0, copy.width, copy.height);
-    }
-    else if(brightChange){
+    }else if(negativeEfect) {
         resizeCanvas(copy.width, copy.height);
         image(copy, 0, 0, copy.width, copy.height);
     }else{
@@ -50,7 +49,7 @@ function keyPressed() {
         }
         renderContrast();
         console.log("left");
-        contrastChange = true;
+        originalChange = true;
         
     }else if (keyCode === RIGHT_ARROW) {
         if(contrastRate<5){
@@ -58,23 +57,27 @@ function keyPressed() {
         }
         renderContrast();
         console.log("right");
-        contrastChange = true;
+        originalChange = true;
         
     }else if (keyCode === UP_ARROW) {
         if(brightIncrement<150){
             brightIncrement+=15;
         }
         renderBright();
-        brightChange = true;
+        originalChange = true;
         
     }else if (keyCode === DOWN_ARROW) {
         if(brightIncrement>-150){
             brightIncrement-=15;
         }
         renderBright();
-        brightChange = true;
+        originalChange = true;
+
     }else if (key == 'r') {
         resetImage();
+    }else if (key == 'n') {
+        negativeImage();
+        negativeEfect = (negativeEfect) ? false : true;
     }
 }
 
@@ -83,8 +86,7 @@ Your funtions
 ****************************/
 
 function resetImage(){
-    brightChange = false;
-    contrastChange = false;
+    originalChange = false;
     brightIncrement=0;
     contrastRate=1;
 }
@@ -122,6 +124,22 @@ function renderContrast() {
     console.log("contrast change:" + contrastRate);
 }
 
+function negativeImage() {
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+
+    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
+        copy.pixels[i] = 255 - original.pixels[i]; // r
+        copy.pixels[i + 1] = 255 - original.pixels[i+1];; // g
+        copy.pixels[i + 2] = 255 - original.pixels[i+2];; // b
+    }copy.updatePixels();
+    console.log("contrast change:" + contrastRate);
+}
+
 /****************************
 Utility funtions
 ****************************/
@@ -133,7 +151,7 @@ function changeInput(key){
 function addText(){
     var div = document.getElementById("instructions");
 
-    var instructions = ['UP/DOWN arrows : increase/decrease brightness', 'LEFT/RIGHT arrows : increase/decrease contrast', ' r : reset image;'];
+    var instructions = ['UP/DOWN arrows : increase/decrease brightness', 'LEFT/RIGHT arrows : increase/decrease contrast', ' r : reset image;', 'n : negative efect'];
 
     var p = document.createElement("p"); // create the paragraph tag
     p.innerHTML = "Instructions: ";
