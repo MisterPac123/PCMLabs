@@ -6,6 +6,7 @@ let luminance_array;
 let luminance_hist = false;
 let binning = 1;
 let avgluminance = false;
+let rgbHist = false;
 
 function preload() {
     trainTutorial = loadImage("../train/plotsTrain.png");
@@ -26,8 +27,9 @@ function draw() {
         //image(copy, 0, 0, original.width, original.height);
     }
     else if (avgluminance){
-        avgLuminance();
 
+    }
+    else if (rgbHist){
     }
     else{
         resizeCanvas(original.width, original.height);
@@ -41,11 +43,17 @@ function keyPressed() {
         resizeCanvas(original.width, original.height);
     
     }else if (key == 'l') {
+        avgLuminance();
         avgluminance = (avgluminance) ? false : true;
+        luminance_hist = false;
+        rgbHist = false;
 
     }else if (key == 'h') {
         luminanceHistogram();
         luminance_hist = (luminance_hist) ? false : true;
+        avgluminance = false;
+        rgbHist = false;
+
     }else if (key == '+') {
         if(luminance_hist){
             increaseBinning();
@@ -56,6 +64,12 @@ function keyPressed() {
             decreaseBinning();
             luminanceHistogram();
         }
+    }
+    else if (key == 's') {
+        rgbHistogram();
+        rgbHist = (rgbHist) ? false : true;   
+        avgluminance = false;
+        luminance_hist = false;
     }
     else if (key == 'r') {
         resetImage();
@@ -163,7 +177,58 @@ function luminanceHistogram() {
       }
 }
 
-function rgbHistogram() {}
+function rgbHistogram() {
+
+    resizeCanvas(original.width, original.height);
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+
+    arrayR = new Array();
+    arrayG = new Array();
+    arrayB = new Array();
+
+    for (let i = 0; i<=255; i++){
+        arrayR[i]=0;
+        arrayG[i]=0;
+        arrayB[i]=0;
+    }
+
+    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
+        arrayR[original.pixels[i]] += 1;
+        arrayG[original.pixels[i+1]] += 1;
+        arrayB[original.pixels[i+2]] += 1;
+    }
+
+    let maximum = 0;
+
+    for (let i = 0; i <= 255; i++)
+        if(arrayR[i]+arrayG[i]+arrayB[i] > maximum)
+            maximum = arrayR[i]+arrayG[i]+arrayB[i];
+
+    for (let i = 0; i <= 255; i++) {
+        stroke(255,0,0)
+        y1 = original.height;
+        y2 = original.height - (arrayR[i]/maximum)*original.height;
+        xPos = (i/255)*original.width;
+        line(xPos, y1, xPos, y2);
+
+        stroke(0,255,0)
+        y1 = original.height - (arrayR[i]/maximum)*original.height;
+        y2 = original.height - (arrayR[i]/maximum)*original.height - (arrayG[i]/maximum)*original.height;
+        xPos = (i/255)*original.width;
+        line(xPos, y1, xPos, y2);
+
+        stroke(0,0,255)
+        y1 = original.height - (arrayR[i]/maximum)*original.height - (arrayG[i]/maximum)*original.height;
+        y2 = original.height - (arrayR[i]/maximum)*original.height - (arrayG[i]/maximum)*original.height - (arrayB[i]/maximum)*original.height;
+        xPos = (i/255)*original.width;
+        line(xPos, y1, xPos, y2);
+    }
+}
 
 function resetImage(){
     
