@@ -7,6 +7,7 @@ let luminance_hist = false;
 let binning = 1;
 let avgluminance = false;
 let rgbHist = false;
+let brightHist = false;
 
 function preload() {
     trainTutorial = loadImage("../train/plotsTrain.png");
@@ -26,10 +27,15 @@ function setup() {
 
 function draw() {
     if(luminance_hist){
+        //image(copy, 0, 0, original.width, original.height);
     }
     else if (avgluminance){
+
     }
     else if (rgbHist){
+    }
+    else if (brightHist) {
+
     }
     else{
         resizeCanvas(original.width, original.height);
@@ -47,20 +53,24 @@ function keyPressed() {
         avgluminance = (avgluminance) ? false : true;
         luminance_hist = false;
         rgbHist = false;
+        brightHist = false;
 
     }else if (key == 'h') {
         luminanceHistogram();
         luminance_hist = (luminance_hist) ? false : true;
         avgluminance = false;
         rgbHist = false;
+        brightHist = false;
 
     }else if (key == '+') {
         if(luminance_hist){
-            increaseBinning();         
+            increaseBinning();
+            luminanceHistogram();
         }
     }else if (key == '-') {
         if(luminance_hist){
-            decreaseBinning();     
+            decreaseBinning();
+            luminanceHistogram();
         }
     }
     else if (key == 's') {
@@ -68,6 +78,14 @@ function keyPressed() {
         rgbHist = (rgbHist) ? false : true;   
         avgluminance = false;
         luminance_hist = false;
+        brightHist = false;
+    }
+    else if (key == 'c') {
+        coolPlot();
+        brightHist = (brightHist) ? false : true;   
+        avgluminance = false;
+        luminance_hist = false;
+        rgbHist = false;
     }
     else if (key == 'r') {
         console.log("chega aqui");
@@ -76,6 +94,7 @@ function keyPressed() {
         binning = 1;
         avgluminance = false;
         rgbHist = false;
+        brightHist = false;
     }
 }
 
@@ -90,8 +109,7 @@ function increaseBinning() {
 }
 
 function decreaseBinning() {
-    if(binning>2)
-        binning-=2;
+    binning-=2;
 }
 
 function avgLuminance() {
@@ -143,7 +161,6 @@ function avgLuminance() {
 }
 
 function luminanceHistogram() {
-    console.log("Luminancee");
     resizeCanvas(original.width, original.height);
 
     copy = createImage(original.width, original.height);
@@ -160,10 +177,8 @@ function luminanceHistogram() {
 
     for (let i = 0; i < 4 * (original.width * original.height); i += 4) {
         v_red = (original.pixels[i]);
-        v_green = (original.pixels[i+1]); // g
-        v_blue = (copy.pixels[i+2]); // b
-       // console.log(int(v_red*0.3 + v_green*0.59 + v_blue*0.11))
-        
+        v_green = (original.pixels[i+1]); 
+        v_blue = (copy.pixels[i+2]); 
         luminance_array[int(v_red*0.3 + v_green*0.59 + v_blue*0.11)/binning]++;
     };
 
@@ -206,7 +221,6 @@ function rgbHistogram() {
         arrayG[original.pixels[i+1]] += 1;
         arrayB[original.pixels[i+2]] += 1;
     }
-    copy.updatePixels();
     let maximum = 0;
 
     for (let i = 0; i <= 255; i++)
@@ -230,6 +244,42 @@ function rgbHistogram() {
         y1 = original.height - (arrayR[i]/maximum)*original.height - (arrayG[i]/maximum)*original.height;
         y2 = original.height - (arrayR[i]/maximum)*original.height - (arrayG[i]/maximum)*original.height - (arrayB[i]/maximum)*original.height;
         xPos = (i/255)*original.width;
+        line(xPos, y1, xPos, y2);
+    }
+}
+
+function coolPlot() {
+    resizeCanvas(original.width, original.height);
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+
+    brightness_array = new Array();
+
+    for (let i = 0; i<=255; i++){
+        brightness_array[i]=0;
+    }
+
+    for (let i = 0; i < 4 * (original.width * original.height); i += 4) {
+        b_red = copy.pixels[i];
+        b_green = copy.pixels[i+1];
+        b_blue = copy.pixels[i+2];
+        brightness_array[(int)((b_red+b_green+b_blue)/3)]++;
+    };
+
+    b_max = Math.max.apply(Math, brightness_array);
+
+    stroke(255,255,0)
+
+    for (x = 0; x <= brightness_array.length; x++) {
+        index = brightness_array[x];
+        
+        y1=int(map(index, 0, b_max, original.height, 0));
+        y2 = height;
+        xPos = map(x,0,brightness_array.length,0, original.width)
         line(xPos, y1, xPos, y2);
     }
 }
@@ -260,7 +310,8 @@ function addText() { var div = document.getElementById("instructions");
     'l : Activate/desactivate luminance line chart;',
     'h : Activate/desactivate luminance histogram;',
     '-/+: Decrease/increase binning',
-    's : Activate/desactivate RGB histogram;',  
+    's : Activate/desactivate RGB histogram;', 
+    'c : Activate/desactivate our cool plot (brightness histogram)', 
     'r : Reset image;'];
 
     var p = document.createElement("p"); // create the paragraph tag
@@ -269,7 +320,7 @@ function addText() { var div = document.getElementById("instructions");
 
     addContent(div, instructions);
 
-    var inputs = ['1 : train/tutorial.png (default)', '2 : test/pixelsTest_1.jpg', '3 : test/pixelsTest_2.jpeg'];
+    var inputs = ['1 : train/tutorial.png (default)', '2 : test/plotsTest_1.png', '3 : test/plotsTest_2.png'];
 
     var p = document.createElement("p"); // create the paragraph tag
     p.innerHTML = "Input: ";
