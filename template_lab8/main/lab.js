@@ -5,6 +5,7 @@ let original,
 let luminance_array;
 let luminance_hist = false;
 let binning = 1;
+let avgluminance = false;
 
 function preload() {
     trainTutorial = loadImage("../train/plotsTrain.png");
@@ -24,7 +25,10 @@ function draw() {
     if(luminance_hist){
         //image(copy, 0, 0, original.width, original.height);
     }
+    else if (avgluminance){
+        avgLuminance();
 
+    }
     else{
         resizeCanvas(original.width, original.height);
         image(original, 0, 0, original.width, original.height);
@@ -36,6 +40,9 @@ function keyPressed() {
         changeInput(key);
         resizeCanvas(original.width, original.height);
     
+    }else if (key == 'l') {
+        avgluminance = (avgluminance) ? false : true;
+
     }else if (key == 'h') {
         luminanceHistogram();
         luminance_hist = (luminance_hist) ? false : true;
@@ -49,6 +56,9 @@ function keyPressed() {
             decreaseBinning();
             luminanceHistogram();
         }
+    }
+    else if (key == 'r') {
+        resetImage();
     }
 }
 
@@ -66,7 +76,53 @@ function decreaseBinning() {
     binning-=2;
 }
 
-function avgLuminance() {}
+function avgLuminance() {
+    let red, blue, green;
+    let lum, avgLum;
+    let px = 0;
+    let py;
+    let x = 0;
+
+    resizeCanvas(original.width, original.height);
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+
+    stroke(255,0,0);
+     
+    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
+        red = (original.pixels[i] * 0.2126);
+        green = (original.pixels[i+1] * 0.7152); // g
+        blue = (original.pixels[i+2] * 0.0722); // b
+        copy.pixels[i] = red+green+blue;
+        copy.pixels[i+1] = red+green+blue;
+        copy.pixels[i+2] = red+green+blue;
+    }copy.updatePixels();
+
+    image(copy, 0, 0, copy.width, copy.height);
+
+    stroke(255,0,0);
+    for (let c = 0; c < 4 * copy.width; c += 4) {
+        for (let i = c; i <= c + 4 * (copy.width * (copy.height-1)); i += 4 * copy.width) {
+            if(i==c)
+                lum=0;
+            lum = lum + (0.3*copy.pixels[i] + 0.59*copy.pixels[i+1] + 0.11*copy.pixels[i+2]);
+        } 
+        
+        avgLum = copy.height - (lum / copy.height);
+
+        if (c==0){
+            py=avgLum;
+        }
+        line(px , py, x, avgLum);
+        px=x;
+        py=avgLum;
+        x=x+1;
+    }
+}
 
 function luminanceHistogram() {
     console.log("Luminancee");
@@ -109,6 +165,10 @@ function luminanceHistogram() {
 
 function rgbHistogram() {}
 
+function resetImage(){
+    
+}
+
 /****************************
 Utility funtions
 ****************************/
@@ -117,13 +177,12 @@ function changeInput(key) {}
 
 function addText() { var div = document.getElementById("instructions");
 
-    var instructions = ['up/down arrows : Increase/decrease brightness;', 'left/right arrows : Increase/decrease contrast;',
-    'l : Activate/desactivate greyscale;',
-    'm : Activate/desactivate monochrome;',  
-    'q : Decrease hue;', 'w : Increase hue;', 
-    't : Activate/desactivate the global thresholding aplication;', 'a : Decrease threshold value;', 's : Increase threshold value;', 
-    'n : Negative effect (our cool effect);', 'z : Decrease percentage of image to be negative;', 
-    'x : Decrease percentage of image to be negative;', 'r : Reset image;'];
+    var instructions = [
+    'l : Activate/desactivate luminance line chart;',
+    'h : Activate/desactivate luminance histogram;',
+    '-/+: Decrease/increase binning',
+    's : Activate/desactivate RGB histogram;',  
+    'r : Reset image;'];
 
     var p = document.createElement("p"); // create the paragraph tag
     p.innerHTML = "Instructions: ";
