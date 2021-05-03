@@ -22,7 +22,6 @@ function setup() {
 
 function draw() {
     if(luminance_hist){
-        //image(copy, 0, 0, original.width, original.height);
     }
 
     else{
@@ -41,13 +40,11 @@ function keyPressed() {
         luminance_hist = (luminance_hist) ? false : true;
     }else if (key == '+') {
         if(luminance_hist){
-            increaseBinning();
-            luminanceHistogram();
+            increaseBinning();         
         }
     }else if (key == '-') {
         if(luminance_hist){
-            decreaseBinning();
-            luminanceHistogram();
+            decreaseBinning();     
         }
     }
 }
@@ -63,7 +60,8 @@ function increaseBinning() {
 }
 
 function decreaseBinning() {
-    binning-=2;
+    if(binning>2)
+        binning-=2;
 }
 
 function avgLuminance() {}
@@ -100,11 +98,11 @@ function luminanceHistogram() {
     for (x = 0; x <= luminance_array.length; x++) {
         index = luminance_array[x];
         
-        y1=int(map(index, 0, v_max, original.height, original.height-200));
+        y1 = int(map(index, 0, v_max, original.height, 0));
         y2 = height;
-        xPos = map(x,0,luminance_array.length,0, original.width-20)
+        xPos = map(x,0,luminance_array.length,0, original.width)
         line(xPos, y1, xPos, y2);
-      }
+    }
 }
 
 function rgbHistogram() {}
