@@ -10,6 +10,8 @@ let rgbHist = false;
 
 function preload() {
     trainTutorial = loadImage("../train/plotsTrain.png");
+    test1 = loadImage("../test/plotsTest_1.png");
+    test2 = loadImage("../test/plotsTest_2.png");
     original = trainTutorial;
 }
 
@@ -72,7 +74,12 @@ function keyPressed() {
         luminance_hist = false;
     }
     else if (key == 'r') {
+        console.log("chega aqui");
         resetImage();
+        luminance_hist = false;
+        binning = 1;
+        avgluminance = false;
+        rgbHist = false;
     }
 }
 
@@ -162,7 +169,7 @@ function luminanceHistogram() {
         
         luminance_array[int(v_red*0.3 + v_green*0.59 + v_blue*0.11)/binning]++;
     };
-
+    copy.updatePixels();
     v_max = Math.max.apply(Math, luminance_array);
 
     stroke(255,255,255)
@@ -202,7 +209,7 @@ function rgbHistogram() {
         arrayG[original.pixels[i+1]] += 1;
         arrayB[original.pixels[i+2]] += 1;
     }
-
+    copy.updatePixels();
     let maximum = 0;
 
     for (let i = 0; i <= 255; i++)
@@ -231,14 +238,24 @@ function rgbHistogram() {
 }
 
 function resetImage(){
-    
+    resizeCanvas(original.width, original.height);
+    image(original, 0, 0, original.width, original.height);
 }
 
 /****************************
 Utility funtions
 ****************************/
 
-function changeInput(key) {}
+function changeInput(key) {
+    var value = key - '0';
+    if (value == 1) {
+        original = trainTutorial;
+    } else if (value == 2) {
+        original = test1;
+    } else if (value == 3) {
+        original = test2;
+    }
+}
 
 function addText() { var div = document.getElementById("instructions");
 
