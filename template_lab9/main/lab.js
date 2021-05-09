@@ -7,6 +7,8 @@ let original,
     trainTutorial;
 
 let laplacianMask = false;
+let blurMask = false;
+let sharpMask = false;
 
 /****************************
 Core funtions
@@ -33,6 +35,14 @@ function draw() {
         resizeCanvas(copy.width, copy.height);
         image(copy, 0, 0, copy.width, copy.height);
     }
+    else if(blurMask){
+        resizeCanvas(copy.width, copy.height);
+        image(copy, 0, 0, copy.width, copy.height);
+    }
+    else if(sharpMask){
+        resizeCanvas(copy.width, copy.height);
+        image(copy, 0, 0, copy.width, copy.height);
+    }
     else{
         resizeCanvas(original.width, original.height);
         image(original, 0, 0, original.width, original.height);
@@ -47,6 +57,20 @@ function keyPressed() {
     else if (key == 'e') {
         edgeDetectionFilter();
         laplacianMask = (laplacianMask) ? false : true;
+    }
+    else if (key == 'b') {
+        blurFilter();
+        blurMask = (blurMask) ? false : true;
+    }
+    else if (key == 'RIGHT_ARROW'){
+
+    }
+    else if (key == 'LEFT_ARROW'){
+        
+    }
+    else if (key == 'a'){
+        sharpFilter();
+        sharpMask = (sharpMask) ? false : true;
     }
     else if (key == 'r') {
         resetImage();
@@ -92,11 +116,85 @@ function edgeDetectionFilter() {
             copy.pixels[4*(y*copy.width+x)+2] = sumBlue;
         }
     }copy.updatePixels();
-    
+}
+
+function blurFilter(){
+    resizeCanvas(original.width, original.height);
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+     
+    let blur = [[1/16, 1/8, 1/16], [1/8, 1/4, 1/8], [1/16, 1/8, 1/16]];
+    //let blur = [[1/256, 4/256, 6/256, 4/256, 1/256], [4/256, 16/256, 24/256, 16/256, 4/256], [6/256, 24/256, 36/256, 24/256, 6/256], [4/256, 16/256, 24/256, 16/256, 4/256], [1/256, 4/256, 6/256, 4/256, 1/256]];
+    let sumRed, sumGreen, sumBlue;
+    let xpos, ypos, pos;
+
+    console.log(blur.length);
+
+    for (let x = 1; x < copy.width - 1; x++) {
+        for (let y = 1; y < copy.height - 1; y++) {
+            sumRed = 0;
+            sumGreen = 0;
+            sumBlue = 0;
+            for (let lx = -1; lx <= 1; lx++) {
+                for (let ly = -1; ly <= 1; ly++) {
+                    xpos = x + lx;
+                    ypos = y + ly;
+                    pos = 4 * (ypos*copy.width + xpos);
+                    sumRed += blur[ly+1][lx+1] * original.pixels[pos];
+                    sumGreen += blur[ly+1][lx+1] * original.pixels[pos+1];
+                    sumBlue += blur[ly+1][lx+1] * original.pixels[pos+2];
+                }
+            }
+            copy.pixels[4*(y*copy.width+x)] = sumRed;
+            copy.pixels[4*(y*copy.width+x)+1] = sumGreen;
+            copy.pixels[4*(y*copy.width+x)+2] = sumBlue;
+        }
+    }copy.updatePixels();
+}
+
+function sharpFilter(){
+    resizeCanvas(original.width, original.height);
+
+    copy = createImage(original.width, original.height);
+
+    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+
+    copy.loadPixels();
+     
+    let sharp = [[0, -1, 0], [-1, 5, -1], [0, -1, 0]];
+    let sumRed, sumGreen, sumBlue;
+    let xpos, ypos, pos;
+
+    for (let x = 1; x < copy.width - 1; x++) {
+        for (let y = 1; y < copy.height - 1; y++) {
+            sumRed = 0;
+            sumGreen = 0;
+            sumBlue = 0;
+            for (let lx = -1; lx <= 1; lx++) {
+                for (let ly = -1; ly <= 1; ly++) {
+                    xpos = x + lx;
+                    ypos = y + ly;
+                    pos = 4 * (ypos*copy.width + xpos);
+                    sumRed += sharp[ly+1][lx+1] * original.pixels[pos];
+                    sumGreen += sharp[ly+1][lx+1] * original.pixels[pos+1];
+                    sumBlue += sharp[ly+1][lx+1] * original.pixels[pos+2];
+                }
+            }
+            copy.pixels[4*(y*copy.width+x)] = sumRed;
+            copy.pixels[4*(y*copy.width+x)+1] = sumGreen;
+            copy.pixels[4*(y*copy.width+x)+2] = sumBlue;
+        }
+    }copy.updatePixels();
 }
 
 function resetImage(){
     laplacianMask = false;
+    blurMask = false;
+    sharpMask = false;
 }
 
 /****************************
@@ -122,7 +220,7 @@ function addText() { var div = document.getElementById("instructions");
     'left/right arrows : Decrease/increase Blur Effect;',
     'p : Activate/deactivate the pixelization filter;',
     'down/up arrows : Decrease/increase Binning;',
-    ' : Activate/desactivate our cool filter;', 
+    'a : Activate/desactivate our cool filter (Sharpen);', 
     'r : Reset image'];
 
     var p = document.createElement("p"); // create the paragraph tag
