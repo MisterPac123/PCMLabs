@@ -153,21 +153,21 @@ function blurFilter(){
     let sumRed, sumGreen, sumBlue;
     let xpos, ypos, pos;
 
-    console.log(blur.length);
+    let blur_m=1;
 
-    for (let x = 1; x < copy.width - 1; x++) {
-        for (let y = 1; y < copy.height - 1; y++) {
+    for (let x = blur_m; x < copy.width - blur_m; x++) {
+        for (let y = blur_m; y < copy.height - blur_m; y++) {
             sumRed = 0;
             sumGreen = 0;
             sumBlue = 0;
-            for (let lx = -1; lx <= 1; lx++) {
-                for (let ly = -1; ly <= 1; ly++) {
+            for (let lx = -blur_m; lx <= blur_m; lx++) {
+                for (let ly = -blur_m; ly <= blur_m; ly++) {
                     xpos = x + lx;
                     ypos = y + ly;
                     pos = 4 * (ypos*copy.width + xpos);
-                    sumRed += blur[ly+1][lx+1] * original.pixels[pos];
-                    sumGreen += blur[ly+1][lx+1] * original.pixels[pos+1];
-                    sumBlue += blur[ly+1][lx+1] * original.pixels[pos+2];
+                    sumRed += blur[ly+blur_m][lx+blur_m] * original.pixels[pos];
+                    sumGreen += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+1];
+                    sumBlue += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+2];
                 }
             }
             copy.pixels[4*(y*copy.width+x)] = sumRed;
