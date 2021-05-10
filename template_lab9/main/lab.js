@@ -75,7 +75,7 @@ function keyPressed() {
         pixelizedEfect = false;
     }
     else if (keyCode === RIGHT_ARROW){
-        if(blurMask && blur_m < 2){
+        if(blurMask){
             blur_m++;
             console.log(blur_m);
             blurFilter();
@@ -171,30 +171,34 @@ function blurFilter(){
      
     let blur;
     
-    if(blur_m == 1) {
+    /*if(blur_m == 1) {
         blur = [[1/16, 1/8, 1/16], [1/8, 1/4, 1/8], [1/16, 1/8, 1/16]];
     }
     else {
         blur = [[1/256, 4/256, 6/256, 4/256, 1/256], [4/256, 16/256, 24/256, 16/256, 4/256], [6/256, 24/256, 36/256, 24/256, 6/256], 
         [4/256, 16/256, 24/256, 16/256, 4/256], [1/256, 4/256, 6/256, 4/256, 1/256]];
-    }
+    }*/
+
+    blur = blurMatrix();
     
     let sumRed, sumGreen, sumBlue;
     let xpos, ypos, pos;
 
-    for (let x = blur_m; x < copy.width - blur_m; x++) {
-        for (let y = blur_m; y < copy.height - blur_m; y++) {
+    for (let x = 0; x < copy.width; x++) {
+        for (let y = 0; y < copy.height; y++) {
             sumRed = 0;
             sumGreen = 0;
             sumBlue = 0;
             for (let lx = -blur_m; lx <= blur_m; lx++) {
                 for (let ly = -blur_m; ly <= blur_m; ly++) {
-                    xpos = x + lx;
-                    ypos = y + ly;
-                    pos = 4 * (ypos*copy.width + xpos);
-                    sumRed += blur[ly+blur_m][lx+blur_m] * original.pixels[pos];
-                    sumGreen += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+1];
-                    sumBlue += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+2];
+                    if(x+lx>=0 && y+ly>=0 && x+lx<=copy.width-1 && y+ly<=copy.height-1){
+                        xpos = x + lx;
+                        ypos = y + ly;
+                        pos = 4 * (ypos*copy.width + xpos);
+                        sumRed += blur[ly+blur_m][lx+blur_m] * original.pixels[pos];
+                        sumGreen += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+1];
+                        sumBlue += blur[ly+blur_m][lx+blur_m] * original.pixels[pos+2];
+                    }
                 }
             }
             copy.pixels[4*(y*copy.width+x)] = sumRed;
@@ -202,6 +206,33 @@ function blurFilter(){
             copy.pixels[4*(y*copy.width+x)+2] = sumBlue;
         }
     }copy.updatePixels();
+}
+
+function blurMatrix() {
+    let sigma = 2;
+    let kernel = [];
+    let uc, vc;
+    let g, sum;
+    sum = 0;
+    for(let u=0; u<1+(2*blur_m); u++) {
+        kernel[u] = [];
+        for(let v=0; v<1+(2*blur_m); v++) {
+            // Center the Gaussian sample so max is at u,v = 10,10
+            uc = u - (1+(2*blur_m-1))/2;
+            vc = v - (1+(2*blur_m-1))/2;
+            // Calculate and save
+            g = exp(-(uc*uc+vc*vc)/(2*sigma*sigma));
+            sum += g;
+            kernel[u][v] = g;
+        }
+    }
+    // Normalize it
+    for(let u=0; u<1+2*blur_m; u++) {
+        for(let v=0; v<1+2*blur_m; v++) {
+            kernel[u][v] /= sum;
+        }
+    }
+    return kernel;
 }
 
 function pixelizedImage() {
