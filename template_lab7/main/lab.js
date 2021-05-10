@@ -2,13 +2,16 @@
 Your variables
 ****************************/
 let original,
-    copy;
+    copy,
+    copyBright,
+    copyContrast;
 
 let trainTutorial;
 
 let contrastRate = 1;
 let brightIncrement = 0;
-let originalChange = false;
+let contrastChange = false;
+let brightChange = false;
 let negativeEfect = false;
 let globalThresholding = false;
 let mono = false;   
@@ -24,6 +27,8 @@ Core funtions
 function preload() {
     trainTutorial = loadImage("../train/pixelsTrain.png");
     original = trainTutorial;
+    copyBright = trainTutorial;
+    copyContrast = trainTutorial;
 }
 
 function setup() {
@@ -52,7 +57,19 @@ function draw() {
     else if (greyscale){
         onlyGreyscale();
         image(copy, 0, 0, copy.width, copy.height);
+<<<<<<< HEAD
+    }
+    else if(contrastChange){
+        resizeCanvas(copyContrast.width, copyContrast.height);
+        image(copyContrast, 0, 0, copyContrast.width, copyContrast.height);
     
+    }
+    else if(brightChange){
+        resizeCanvas(copyBright.width, copyBright.height);
+        image(copyBright, 0, 0, copyBright.width, copyBright.height);
+=======
+    
+>>>>>>> 1933222e6f9db18869d931843f8452350bc25c35
     }else{
         resizeCanvas(original.width, original.height);
         image(original, 0, 0, original.width, original.height);
@@ -65,28 +82,33 @@ function keyPressed() {
             contrastRate-=0.2;
         }
         renderContrast();
-        originalChange = true;
+        contrastChange = true;
+        brightChange = false;
+
         
     }else if (keyCode === RIGHT_ARROW) {
         if(contrastRate<5){
             contrastRate+=0.2;
         }
         renderContrast();
-        originalChange = true;
+        contrastChange = true;
+        brightChange = false;
         
     }else if (keyCode === UP_ARROW) {
         if(brightIncrement<150){
             brightIncrement+=15;
         }
         renderBright();
-        originalChange = true;
+        brightChange = true;
+        contrastChange = false;
         
     }else if (keyCode === DOWN_ARROW) {
         if(brightIncrement>-150){
             brightIncrement-=15;
         }
         renderBright();
-        originalChange = true;
+        brightChange = true;
+        contrastChange = false;
 
     }else if (key == 'r') {
         resetImage();
@@ -147,44 +169,47 @@ Your funtions
 function resetImage(){
     mono = false;   
     greyscale = false;
-    originalChange = false;
+    brightChange = false;
+    contrastChange = false;
     globalThresholding = false;
     brightIncrement=0;
     contrastRate=1;
     threshold=150;
     hue = 0;
+    copyBright = trainTutorial;
+    copyContrast = trainTutorial;
 }
 
 function renderBright() {
 
-    copy = createImage(original.width, original.height);
+    copyBright = createImage(copyContrast.width, copyContrast.height);
 
-    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+    copyBright.copy(copyContrast, 0, 0, copyContrast.width, copyContrast.height, 0, 0, copyContrast.width, copyContrast.height);
 
-    copy.loadPixels();
+    copyBright.loadPixels();
 
-    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
-        copy.pixels[i] = original.pixels[i] + brightIncrement; // r
-        copy.pixels[i + 1] = original.pixels[i + 1] + brightIncrement;; // g
-        copy.pixels[i + 2] = original.pixels[i + 2] + brightIncrement;; // b
-    }copy.updatePixels();
+    for (let i = 0; i < 4 * (copyBright.width * copyBright.height); i += 4) {
+        copyBright.pixels[i] = copyContrast.pixels[i] + brightIncrement; // r
+        copyBright.pixels[i + 1] = copyContrast.pixels[i + 1] + brightIncrement;; // g
+        copyBright.pixels[i + 2] = copyContrast.pixels[i + 2] + brightIncrement;; // b
+    }copyBright.updatePixels();
     console.log("brightRate:" + brightIncrement);
 }
 
 
 function renderContrast() {
     
-    copy = createImage(original.width, original.height);
+    copyContrast = createImage(copyBright.width, copyBright.height);
 
-    copy.copy(original, 0, 0, original.width, original.height, 0, 0, original.width, original.height);
+    copyContrast.copy(copyBright, 0, 0, copyBright.width, copyBright.height, 0, 0, copyBright.width, copyBright.height);
 
-    copy.loadPixels();
+    copyContrast.loadPixels();
 
-    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
-        copy.pixels[i] = contrastRate*(original.pixels[i]-127)+127; // r
-        copy.pixels[i + 1] = contrastRate*(original.pixels[i+1]-127)+127;; // g
-        copy.pixels[i + 2] = contrastRate*(original.pixels[i+2]-127)+127;; // b
-    }copy.updatePixels();
+    for (let i = 0; i < 4 * (copyContrast.width * copyContrast.height); i += 4) {
+        copyContrast.pixels[i] = contrastRate*(copyBright.pixels[i]-127)+127; // r
+        copyContrast.pixels[i + 1] = contrastRate*(copyBright.pixels[i+1]-127)+127;; // g
+        copyContrast.pixels[i + 2] = contrastRate*(copyBright.pixels[i+2]-127)+127;; // b
+    }copyContrast.updatePixels();
     console.log("contrast change:" + contrastRate);
 }
 
