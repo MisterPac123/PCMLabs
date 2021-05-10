@@ -46,8 +46,7 @@ function draw() {
         image(copy, 0, 0, copy.width, copy.height);
     }
     else if(pixelizedEfect){
-        resizeCanvas(copy.width, copy.height);
-        image(copy, 0, 0, copy.width, copy.height);
+        
     }
     else{
         resizeCanvas(original.width, original.height);
@@ -209,7 +208,6 @@ function pixelizedImage() {
                 rect(x, y, pixelcells, pixelcells);
         }
     }
-    console.log("aqui");
 }
 
 //Our cool filter
