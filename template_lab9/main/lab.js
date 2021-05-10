@@ -212,13 +212,14 @@ function pixelizedImage() {
     copy.loadPixels();
 
     let color;
+    let i, j;
     
     for (let y = 0; y < copy.height; y += pixelcells) {
         for (let x = 0; x < copy.width; x += pixelcells) {
                 // Get the color at (x, y)
                 color=[0,0,0,0];
-                for(let i =0; i<pixelcells; i++){
-                    for(let j =0; j<pixelcells; j++){
+                for(i =0; y + i < copy.height && i<pixelcells; i++){
+                    for(j =0; x + j < copy.width &&  j<pixelcells; j++){
                         let copy_color = copy.get(x+j, y+i)
                         color[0] += copy_color[0];
                         color[1] += copy_color[1];
@@ -226,10 +227,10 @@ function pixelizedImage() {
                         color[3] += copy_color[3];
                     }
                 }
-                color[0] = color[0]/(pixelcells*pixelcells);
-                color[1] = color[1]/(pixelcells*pixelcells);
-                color[2] = color[2]/(pixelcells*pixelcells);
-                color[3] = color[3]/(pixelcells*pixelcells);
+                color[0] = color[0]/(i*j);
+                color[1] = color[1]/(i*j);
+                color[2] = color[2]/(i*j);
+                color[3] = color[3]/(i*j);
                 fill(color);
                 // Draw a rectangle at (x, y) and the size of a cell
                 rect(x, y, pixelcells, pixelcells);
