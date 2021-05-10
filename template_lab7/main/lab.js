@@ -19,7 +19,6 @@ let greyscale = false;
 
 let threshold = 150;
 let hue = 0;
-let negativePercentage = 0;
 
 /****************************
 Core funtions
@@ -27,9 +26,6 @@ Core funtions
 
 function preload() {
     trainTutorial = loadImage("../train/pixelsTrain.png");
-    test1 = loadImage("../test/pixelsTest_1.jpg");
-    test2 = loadImage("../test/pixelsTest_2.jpeg");
-
     original = trainTutorial;
     copyBright = trainTutorial;
     copyContrast = trainTutorial;
@@ -45,8 +41,11 @@ function setup() {
 }
 
 function draw() {
-    if(negativeEfect) {
-        negativeImage();
+    if(originalChange){
+        resizeCanvas(copy.width, copy.height);
+        image(copy, 0, 0, copy.width, copy.height);
+    }else if(negativeEfect) {
+        resizeCanvas(copy.width, copy.height);
         image(copy, 0, 0, copy.width, copy.height);
 	}else if (globalThresholding) {
         onlyGlobalThresholding();
@@ -58,6 +57,7 @@ function draw() {
     else if (greyscale){
         onlyGreyscale();
         image(copy, 0, 0, copy.width, copy.height);
+<<<<<<< HEAD
     }
     else if(contrastChange){
         resizeCanvas(copyContrast.width, copyContrast.height);
@@ -67,6 +67,9 @@ function draw() {
     else if(brightChange){
         resizeCanvas(copyBright.width, copyBright.height);
         image(copyBright, 0, 0, copyBright.width, copyBright.height);
+=======
+    
+>>>>>>> 1933222e6f9db18869d931843f8452350bc25c35
     }else{
         resizeCanvas(original.width, original.height);
         image(original, 0, 0, original.width, original.height);
@@ -74,11 +77,7 @@ function draw() {
 }
 
 function keyPressed() {
-    if (key >= '0' & key <= '9') {
-        changeInput(key);
-        resizeCanvas(original.width, original.height);
-    
-    }else if (keyCode === LEFT_ARROW) {
+    if (keyCode === LEFT_ARROW) {
         if(contrastRate>0){
             contrastRate-=0.2;
         }
@@ -113,63 +112,39 @@ function keyPressed() {
 
     }else if (key == 'r') {
         resetImage();
-        originalChange = false;
-
     }else if (key == 'n') {
+        negativeImage();
         negativeEfect = (negativeEfect) ? false : true;
-        globalThresholding = false;
-        mono = false;   
-        greyscale = false;
         if(!negativeEfect)
             originalChange = false;
-	
-    }else if (key == 'z') {
-        if(negativeEfect){
-            negativePercentage = negativePercentage - 5;
-            if(negativePercentage < 0)
-                negativePercentage = 0;
-        }
-
-    }else if (key == 'x') {
-        if(negativeEfect){
-            negativePercentage = negativePercentage + 5;
-            if(negativePercentage > 100)
-                negativePercentage = 100;
-        }
-
+		
     }else if (key == 't') {
+        onlyGlobalThresholding();
         globalThresholding = (globalThresholding) ? false : true;
-        negativeEfect = false;
-        mono = false;   
-        greyscale = false;
-        if(!globalThresholding)
+        if(!negativeEfect)
             originalChange = false;
+
 
     }else if (key == 'a') {
         if(globalThresholding){
             threshold = threshold - 1;
+            onlyGlobalThresholding();
         }
+
 
     }else if (key == 's') {
         if(globalThresholding){
             threshold = threshold + 1;
+            onlyGlobalThresholding();
         } 
-
     }else if (key == 'l') {
         greyscale = (greyscale) ? false : true;
-        globalThresholding = false;
-        negativeEfect = false;
-        mono = false;
-        if(!greyscale)
+        if(!negativeEfect)
             originalChange = false;
+
 
     }else if (key == 'm') {
         mono = (mono) ? false : true;
-        globalThresholding = false;
-        negativeEfect = false;
-        greyscale = false;
-        if(!mono)
-            originalChange = false;
     
     }else if (key == 'q') {
         if(mono){
@@ -246,7 +221,7 @@ function negativeImage() {
 
     copy.loadPixels();
 
-    for (let i = 0; i < 4 * negativePercentage*(copy.width * copy.height)/100; i += 4) {
+    for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
         copy.pixels[i] = 255 - original.pixels[i]; // r
         copy.pixels[i + 1] = 255 - original.pixels[i+1];; // g
         copy.pixels[i + 2] = 255 - original.pixels[i+2];; // b
@@ -308,10 +283,12 @@ function onlyMonochrome() {
     copy.loadPixels();
 
     for (let i = 0; i < 4 * (copy.width * copy.height); i += 4) {
+        copy.pixels[i] = 0;
+        copy.pixels[i + 2] = 0;
 
         r = original.pixels[i]/255;
-        g = original.pixels[i + 1]/255; 
-        b = original.pixels[i + 2]/255;
+        g = original.pixels[i + 1]/255; // g
+        b = original.pixels[i + 2]/255; // b
 
         if (r>=g && r>=b)
             max=r;
@@ -326,6 +303,13 @@ function onlyMonochrome() {
             min=g;
         else if (b<=r && b<=g)
             min=b;
+        
+        /*if (max == r)  
+            hue = (g-b)/(max-min)
+        else if (max == g)  
+            hue = 2.0 + (b-r)/(max-min)
+        else if (max == b)
+            hue = 4.0 + (r-g)/(max-min)*/
 
         V=max;
 
@@ -336,37 +320,37 @@ function onlyMonochrome() {
 
         C=V*S;
         
-        X= C * (1 - Math.abs((hue/60)%2 - 1));
+        X=(V*S) * (1 - Math.abs((hue/60)%2 - 1));
         M=V-C;
 
         if(0<=hue && hue<60){
             copy.pixels[i]=(C+M)*255;
             copy.pixels[i+1]=(X+M)*255;
-            copy.pixels[i+2]=M*255;
+            copy.pixels[i+2]=0;
         }
         else if(60<=hue && hue<120){
             copy.pixels[i]=(X+M)*255;
             copy.pixels[i+1]=(C+M)*255
-            copy.pixels[i+2]=M*255;
+            copy.pixels[i+2]=0;
         }
         else if(120<=hue && hue<180){
-            copy.pixels[i]=M*255;
+            copy.pixels[i]=0;
             copy.pixels[i+1]=(C+M)*255;
             copy.pixels[i+2]=(X+M)*255;
         }
         else if(180<=hue && hue<240){
-            copy.pixels[i]=M*255;
+            copy.pixels[i]=0;
             copy.pixels[i+1]=(X+M)*255;
             copy.pixels[i+2]=(C+M)*255;
         }
         else if(240<=hue && hue<300){
             copy.pixels[i]=(X+M)*255;
-            copy.pixels[i+1]=M*255;
+            copy.pixels[i+1]=0;
             copy.pixels[i+2]=(C+M)*255;
         }
         else if(300<=hue && hue<360){
             copy.pixels[i]=(C+M)*255;
-            copy.pixels[i+1]=M*255;
+            copy.pixels[i+1]=0;
             copy.pixels[i+2]=(X+M)*255;
         }
 
@@ -377,15 +361,8 @@ function onlyMonochrome() {
 Utility funtions
 ****************************/
 
-function changeInput(key) {
-    var value = key - '0';
-    if (value == 1) {
-        original = trainTutorial;
-    } else if (value == 2) {
-        original = test1;
-    } else if (value == 3) {
-        original = test2;
-    }
+function changeInput(key){
+
 }
 
 function addText(){
@@ -396,8 +373,7 @@ function addText(){
     'm : Activate/desactivate monochrome;',  
     'q : Decrease hue;', 'w : Increase hue;', 
     't : Activate/desactivate the global thresholding aplication;', 'a : Decrease threshold value;', 's : Increase threshold value;', 
-    'n : Negative effect (our cool effect);', 'z : Decrease percentage of image to be negative;', 
-    'x : Decrease percentage of image to be negative;', 'r : Reset image;'];
+    'n : Negative effect;','r : Reset image;'];
 
     var p = document.createElement("p"); // create the paragraph tag
     p.innerHTML = "Instructions: ";
@@ -405,7 +381,7 @@ function addText(){
 
     addContent(div, instructions);
 
-    var inputs = ['1 : train/tutorial.png (default)', '2 : test/pixelsTest_1.jpg', '3 : test/pixelsTest_2.jpeg'];
+    var inputs = ['1 : train/tutorial.png (default)', '2 : test/zuri.jpeg'];
 
     var p = document.createElement("p"); // create the paragraph tag
     p.innerHTML = "Input: ";
