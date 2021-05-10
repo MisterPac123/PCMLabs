@@ -19,8 +19,8 @@ Core funtions
 
 function preload() {
     trainTutorial = loadImage("../train/binningTrain.png");
-    //test1 = loadImage("../test/plotsTest_1.png");
-    //test2 = loadImage("../test/plotsTest_2.png");
+    test1 = loadImage("../test/binningTest_1.jpg");
+    test2 = loadImage("../test/binningTest_2.jpg");
     original = trainTutorial;
 }
 
@@ -290,11 +290,13 @@ function changeInput(key) {
     var value = key - '0';
     if (value == 1) {
         original = trainTutorial;
-    }/* else if (value == 2) {
+    }
+    else if (value == 2) {
         original = test1;
-    } else if (value == 3) {
+    } 
+    else if (value == 3) {
         original = test2;
-    }*/
+    }
 }
 
 function addText() { var div = document.getElementById("instructions");
